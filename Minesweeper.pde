@@ -1,8 +1,8 @@
 private int board_height = 500;
 private int board_width = 500;
-private int rows = 5;
-private int cols = 5;
-private int num_mines = 2;
+private int rows = 10;
+private int cols = 10;
+private int num_mines = 10;
 private int start_time = 0;
 private float final_time = 0;
 private Space[][] board;
@@ -20,7 +20,6 @@ private class Space {
     boolean is_mine;
     boolean is_flagged;
     boolean is_revealed;
-    boolean mines_counted;
     int adjacent_mines;
 
     Space() {
@@ -87,36 +86,25 @@ private void start_game(int x, int y) {
             mines--;
         }
     }
-    flood_fill_adjacent_mines(x, y);
+    fill_adjacent_mines();
     reveal(x, y);
     start_time = millis();
 }
 
-private void flood_fill_adjacent_mines(int x, int y) {
-    if (x < 0 || x >= rows || y < 0 || y >= cols) {
-        return;
-    }
-    if (board[x][y].mines_counted) {
-        return;
-    }
-    board[x][y].mines_counted = true;
-    if (board[x][y].is_mine) {
-        return;
-    }
-    int count = 0;
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            if (x + i >= 0 && x + i < rows && y + j >= 0 && y + j < cols) {
-                if (board[x + i][y + j].is_mine) {
-                    count++;
+private void fill_adjacent_mines(){
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (board[i][j].is_mine) {
+                int[][] neighbors = { { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 0 }, { 1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
+                for (int[] neighbor : neighbors) {
+                    int x = i + neighbor[0];
+                    int y = j + neighbor[1];
+                    if (x >= 0 && x < rows && y >= 0 && y < cols) {
+                        board[x][y].adjacent_mines++;
+                    }
                 }
             }
         }
-    }
-    board[x][y].adjacent_mines = count;
-    int[][] neighbors = { { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 0 }, { 1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
-    for (int[] neighbor : neighbors) {
-        flood_fill_adjacent_mines(x + neighbor[0], y + neighbor[1]);
     }
 }
 
